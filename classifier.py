@@ -1,14 +1,11 @@
-import os
 import json
 import dotenv
 import pandas as pd
-from litellm import acompletion
 from pydantic import BaseModel
 from typing import Type, TypeVar, List, Dict
-import asyncio
+
 import nest_asyncio
-import re
-from tenacity import retry, stop_after_attempt, wait_exponential
+
 from enum import Enum
 
 dotenv.load_dotenv()
@@ -57,42 +54,6 @@ class TemplateError(ClassifierError):
 class APIError(ClassifierError):
     """Raised when there's an error with the LLM API"""
     pass
-
-
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-async def classify_text(prompt: str, model_class: Type[T]) -> T | None:
-    """Classify a single text using the LLM with retry logic."""
-    try:
-        response = await acompletion(
-            model="deepseek/deepseek-chat", 
-            messages=[{"role": "user", "content": prompt}],
-            format="json",
-            api_key=os.getenv('DEEPSEEK_API_KEY')
-        )
-        return parse_llm_json_response(response['choices'][0]['message']['content'], model_class)
-    except Exception as e:
-        print(f"Error during classification: {str(e)}")
-        return None
-
-
-async def classify_all(df: pd.DataFrame, prompt_template: str, model_class: Type[T]) -> List[T | None]:
-    """Classify all rows in a DataFrame."""
-    placeholders = re.findall(r'\{(\w+)\}', prompt_template)
-    results = []
-    
-    # Validate template placeholders before processing
-    format_args = get_format_args(df.iloc[0], placeholders)  # Will raise TemplateError if column missing
-    
-    for _, row in df.iterrows():
-        try:
-            format_args = get_format_args(row, placeholders)
-            current_prompt = prompt_template.format(**format_args)
-            result = await classify_text(current_prompt, model_class)
-            results.append(result)
-        except TemplateError:
-            raise  # Template errors should stop processing
-    
-    return results  # Now includes None values for failed classifications
 
 
 def prepare_dataframe(df: pd.DataFrame, model_fields: List[str]) -> pd.DataFrame:
@@ -179,31 +140,3 @@ def flatten_model_fields(model_class: Type[BaseModel]) -> List[str]:
         else:
             fields.append(field_name)
     return fields
-
-
-def process_csv(input_file: str, output_file: str, prompt_template: str, model_class: Type[T]) -> None:
-    """Process a CSV file, classifying empty rows and preserving existing classifications."""
-    # Read and prepare the DataFrame
-    df = pd.read_csv(input_file)
-    model_fields = flatten_model_fields(model_class)
-    df = prepare_dataframe(df, model_fields)
-    
-    # Identify and process rows needing classification
-    mask = get_empty_mask(df, model_fields)
-    rows_to_classify = df[mask].copy()
-    
-    if not rows_to_classify.empty:
-        results = asyncio.run(classify_all(rows_to_classify, prompt_template, model_class))
-        df = update_classifications(df, results, mask, model_fields)
-    
-    # Write the updated DataFrame
-    df.to_csv(output_file, index=False)
-
-
-if __name__ == "__main__":
-    from prompt import prompt_template, ClassificationResponse
-    
-    input_csv = "input.csv"
-    output_csv = "output.csv"
-    
-    process_csv(input_csv, output_csv, prompt_template, ClassificationResponse)

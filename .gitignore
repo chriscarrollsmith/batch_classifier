@@ -12,3 +12,7 @@ wheels/
 
 # Environment variables
 .env
+
+# Batch processing
+batch_info.json
+batch_requests.jsonl

@@ -1,6 +1,6 @@
 # LLM Classifier
 
-This project classifies text data from a CSV file using a DeepSeek V3 in JSON mode (though LiteLLM makes it very easy to swap in a different LLM). DeepSeek V3 was chosen for its very low cost, very high throughput, and highly permissive rate limiting.
+This project classifies text data from a CSV file using the OpenAI batch API. The batch API allows large workloads to be run at off-peak times at a fraction of the cost of running the same workload on the regular OpenAI API.
 
 ## Prerequisites
 
@@ -21,8 +21,8 @@ Before you begin, make sure you have the following installed:
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/chriscarrollsmith/llm-classifier.git
-    cd llm-classifier
+    git clone https://github.com/chriscarrollsmith/batch-classifier.git
+    cd batch-classifier
     ```
 
 2.  Install the project dependencies using `uv`:
@@ -30,9 +30,9 @@ Before you begin, make sure you have the following installed:
     uv sync
     ```
 
-3.  Create a `.env` file in the root directory and add your [DeepSeek API key](https://platform.deepseek.com/api_keys):
+3.  Create a `.env` file in the root directory and add your [OpenAI API key](https://platform.openai.com/api-keys):
     ```
-    DEEPSEEK_API_KEY=your_deepseek_api_key
+    OPENAI_API_KEY=your_openai_api_key
     ```
 
 ## Usage

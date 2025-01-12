@@ -1,7 +1,7 @@
 [project]
-name = "llm-classifier"
+name = "batch-classifier"
 version = "0.1.0"
-description = "Classify text data from a CSV file with LLMs"
+description = "Classify text data from a CSV file with the OpenAI batch API"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -12,12 +12,19 @@ dependencies = [
     "pytest-asyncio>=0.25.2",
     "pytest>=8.3.4",
     "python-dotenv>=1.0.1",
-    "tenacity>=9.0.0",
 ]
 
 [build-system]
 requires = ["setuptools>=75.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = [
+    "classifier",
+    "process_batch",
+    "prompt",
+    "submit_batch"
+]
 
 [tool.pytest.ini_options]
 pythonpath = "."

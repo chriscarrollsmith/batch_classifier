@@ -1,4 +1,4 @@
 item,reason,classification
-a cat,some reason,person
-a pencil,"A pencil is an inanimate object used for writing or drawing, which clearly fits the definition of a 'thing'.",thing
-an oil derrick,"An oil derrick is a structure used in the extraction of oil, which is a physical object and does not possess characteristics of a person or a place.",thing
+a cat,"A cat is a living animal that falls into the category of a creature, making it a 'thing' rather than a person or place.",thing
+a pencil,"A pencil is a commonly used writing instrument made of wood and graphite, categorizing it as a physical object rather than a person or place.",thing
+an oil derrick,An oil derrick is a structure used for drilling oil wells; it is a physical object and thus falls under the category of 'thing'.,thing
